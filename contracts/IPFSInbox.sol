@@ -18,6 +18,7 @@ contract IPFSInbox {
     // Grabs the name of the resources based on address
     mapping (address => patRec) ipfsInbox;
     mapping (address => shareRec) shareInbox;
+    mapping (address => uint8) roles;
     // Events
     event ipfsSent(string _ipfsHash, address _address);
     event inboxResponse(string response);
@@ -26,7 +27,8 @@ contract IPFSInbox {
     modifier notFull (string memory _string) {bytes memory stringTest = bytes(_string); require (stringTest.length == 0); _;}
 
     constructor() public {
-
+        //roles[address]=1;
+        //roles[address]=2;
     }
 
     function sendIPFS(address _address, string memory _ipfsHash) public {
@@ -35,15 +37,30 @@ contract IPFSInbox {
             // emit ipfsSent("Patient record exists already!", _address);
         // require(ipfsInbox[_address].isExists == false);
         else {
-            ipfsInbox[_address].ipfsHash = _ipfsHash;
-            ipfsInbox[_address].patAdd = _address;
-            ipfsInbox[_address].docAdd = msg.sender;
-            ipfsInbox[_address].isExists = true;
-            emit ipfsSent(_ipfsHash, _address);
+            if(roles[msg.sender] == 1){
+                ipfsInbox[_address].ipfsHash = _ipfsHash;
+                ipfsInbox[_address].patAdd = _address;
+                ipfsInbox[_address].docAdd = msg.sender;
+                ipfsInbox[_address].isExists = true;
+                emit ipfsSent(_ipfsHash, _address);
+            }
+            else{
+                emit inboxResponse("Not a doctor");
+            }
         }
         
     }
-
+    function assignDoc(address _address) public{
+        if(roles[msg.sender] == 3){
+            roles[_address] = 1;
+        }
+    }
+    function assignPat(address _address) public{
+        if(roles[msg.sender] == 3){
+            roles[_address] = 2;
+        }
+    }
+    
     function canUpdate(address _address) public{
         uint8 f = 0;
         if(ipfsInbox[_address].docAdd == msg.sender){
