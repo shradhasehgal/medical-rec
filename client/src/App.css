@@ -22,7 +22,7 @@ h1{
 }
 
 .medical {
-  margin-top: 30px;
+  margin-top: 20px;
 }
 
 .form-control {
@@ -35,6 +35,16 @@ h1{
 
 h5 {
   margin-top: 10px;
+}
+
+.img{
+  margin-top: 70px;
+  width: 390px;
+  height: 450px;
+}
+
+.top{
+  margin-top: 0px !important;
 }
 /* form {
 

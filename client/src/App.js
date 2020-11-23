@@ -6,6 +6,7 @@ import ipfs from './ipfs';
 import axios from "axios";
 import "bootstrap/dist/css/bootstrap.min.css";
 import "./App.css";
+import docPat from './img/doc-pat.png';
 
 class App extends Component {
   constructor(props) {
@@ -24,6 +25,8 @@ class App extends Component {
       ShareAddress: "",
       UpdateAddress: "",
       role: "doc",
+      RoleAddress: "",
+      medical: 1,
     };
 
     this.handleChangeAddress = this.handleChangeAddress.bind(this);
@@ -37,6 +40,8 @@ class App extends Component {
     this.handleChangeUpdate = this.handleChangeUpdate.bind(this);
     this.handleUpdateRecord = this.handleUpdateRecord.bind(this);
     this.handleChangeRole = this.handleChangeRole.bind(this);
+    this.handleChangeRoleAddress = this.handleChangeRoleAddress.bind(this);
+    this.handleAssignRole = this.handleAssignRole.bind(this);
   }
 
 
@@ -114,6 +119,10 @@ class App extends Component {
     this.setState({ role: event.target.value });
   }
 
+  handleChangeRoleAddress(event) {
+    this.setState({ RoleAddress: event.target.value });
+  }
+
   handleChangeShareAddress(event) {
     this.setState({ ShareAddress: event.target.value });
   }
@@ -134,6 +143,28 @@ class App extends Component {
         this.setState({ formAddress: "" });
         this.setState({ formIPFS: "" });
       })
+  }
+
+  handleAssignRole(event) {
+    event.preventDefault();
+    const contract = this.state.contract
+    const account = this.state.accounts[0]
+
+    document.getElementById('roles').reset();
+    if (this.state.role == "doc") {
+      contract.assignDoc(this.state.RoleAddress, { from: account })
+        .then(result => {
+          this.setState({ role: "" });
+          this.setState({ RoleAddress: "" });
+        })
+    }
+    else if (this.state.role == "pat") {
+      contract.assignPat(this.state.RoleAddress, { from: account })
+        .then(result => {
+          this.setState({ role: "" });
+          this.setState({ RoleAddress: "" });
+        })
+    }
   }
 
   handleViewRecord(event) {
@@ -248,19 +279,20 @@ class App extends Component {
         {
           this.state.medical ?
             <div class="medical">
-              <h5> 1. Add record to IPFS </h5>
+              <h5 class="top"> 1. Add record to IPFS </h5>
               <form id="ipfs-hash-form" className="scep-form" onSubmit={this.onIPFSSubmit}>
                 <input
                   type="file"
                   onChange={this.captureFile}
+                  class="btn btn-link"
                 />
-                 <input type="submit" value="Send" />
+                <input type="submit" value="Send" class="btn btn-info"/>
                 {/* <button
                   type="submit" class="btn btn-primary">
                   Send it
             </button> */}
               </form>
-              <br/>
+              <br />
               <p> The IPFS hash is: {this.state.ipfsHash}</p>
 
               <h5> 2. Upload file here </h5>
@@ -268,7 +300,7 @@ class App extends Component {
                 <form id="new-notification-form" className="scep-form" onSubmit={this.handleSend}>
                   <input type="text" class="form-control" value={this.state.value} onChange={this.handleChangeAddress} placeholder="Receiver Address"></input>
                   <input type="text" class="form-control" value={this.state.value} onChange={this.handleChangeIPFS} placeholder="IPFS Hash"></input>
-                  <input type="submit" class="btn btn-primary" value="Submit File" />
+                  <input class="form-control" type="submit" class="btn btn-primary" value="Submit File" />
                 </form>
               </div>
 
@@ -277,7 +309,7 @@ class App extends Component {
               <div class="form-group">
                 <form id="pat-notification-form" className="scep-form" onSubmit={this.handleViewRecord}>
                   <input class="form-control" type="text" value={this.state.patient} onChange={this.handleChangePatient} placeholder="Patient Address" />
-                  <input class="form-control" type="submit" value="Display Record" class="btn btn-primary" />
+                  <input class="form-control" type="submit" value="Display Record" class="btn btn-info" />
                 </form>
               </div>
               <p>{this.state.receivedText}</p>
@@ -297,18 +329,18 @@ class App extends Component {
               <div class="form-group">
                 <form id="upd-notification-form" className="scep-form" onSubmit={this.handleUpdateRecord}>
                   <input class="form-control" type="text" value={this.state.UpdateAddress} onChange={this.handleChangeUpdate} placeholder="Patient Address" />
-                  <input type="submit" value="Allow Update" class="btn btn-primary" />
+                  <input type="submit" value="Allow Update" class="btn btn-info" />
                 </form>
               </div>
             </div>
             : <div>
-              <form>
+              <form onSubmit={this.handleAssignRole} id="roles">
                 <div class="form-group assign">
-                  <input class="form-control" id="exampleInputPassword1" placeholder="Address">
+                  <input class="form-control" id="exampleInputPassword1" placeholder="Address" value={this.state.RoleAddress} onChange={this.handleChangeRoleAddress}>
                   </input>
                   <br />
-                  <select  value={this.state.role} class="form-control" onChange={this.handleChangeRole}>
-                    <option value ="doc">Doctor</option>
+                  <select value={this.state.role} class="form-control" onChange={this.handleChangeRole}>
+                    <option value="doc">Doctor</option>
                     <option value="pat">Patient</option>
                   </select>
                   <br />
@@ -316,6 +348,7 @@ class App extends Component {
                 <input type="submit" class="btn btn-primary" value="Assign Role" />
 
               </form>
+              <img src={docPat} alt="Doctor and Patient" class="img"/>
 
             </div>
         }
