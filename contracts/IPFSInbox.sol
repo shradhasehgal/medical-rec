@@ -27,8 +27,9 @@ contract IPFSInbox {
     modifier notFull (string memory _string) {bytes memory stringTest = bytes(_string); require (stringTest.length == 0); _;}
 
     constructor() public {
-        //roles[address]=1;
-        //roles[address]=2;
+        roles[0x4c2D220c5c16c1b10531Eaa06955Fc405f083A6C]=1; // doctor
+        roles[0xE6b77C28b0a5A63b73e1a470F36187d74B8Aa0b4]=2; // pat
+        roles[0x01F80c59484EBf5f2956Db8ec58E502DbDA9DfF9]=3; // hc prov
     }
 
     function sendIPFS(address _address, string memory _ipfsHash) public {

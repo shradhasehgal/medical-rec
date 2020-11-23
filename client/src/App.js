@@ -55,7 +55,7 @@ class App extends Component {
         .on('data', result => {
           console.log(result);
           
-          if(result.args[0] !== "Insufficient Permissions" && result.args[0] !== "No record" && result.args[0] !== "1 sign" && result.args[0] !== "2 sign" && result.args[0] !== "exists")
+          if(result.args[0] !== "Insufficient Permissions" && result.args[0] !== "No record" && result.args[0] !== "1 sign" && result.args[0] !== "2 sign" && result.args[0] !== "exists" && result.args[0] != "Not a doctor")
           {
             axios
             .get("https://gateway.ipfs.io/ipfs/"+result.args[0])
@@ -77,6 +77,8 @@ class App extends Component {
               alert("Both signs completed, record can be updated");
             else if(result.args[0] === "exists")
               alert("Record exists, sign update");
+            else if(result.args[0] === "Not a doctor")
+              alert("Account does not have doctor permissions");
           }
           // this.setState({receivedIPFS: result.args[0]})
         });
