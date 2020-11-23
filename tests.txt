@@ -1,0 +1,16 @@
+2 Patients, 2 Doctors, 1 Healthcare Provider
+
+- Healthcare provider assigns roles
+- Doctor / Patient assigning roles gives error
+- Doctor 1 adds Patient 1 record
+- Patient 1 tries adding record, gives error
+- Doctor 1 and Patient 1 can view record of Patient 1
+- Doctor 2 and Patient 2 cannot view record of Patient 1 (gives error)
+- Patient 1 shares their record with Doctor 2
+- Doctor 2 can now view record of Patient 1
+- Doctor 1 signs update for Patient 1 record
+- Doctor 1 tries adding new record for Patient 1, gives error
+- Patient 1 signs update for Patient 1 record
+- Doctor 1 or 2 can now add Patient 1 record
+- Patient 2 tries to view their record, gives error that no record exists
+- Patient 2 tries to share their record, gives error that no record exists

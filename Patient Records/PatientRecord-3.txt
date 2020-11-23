@@ -1,0 +1,5 @@
+Patient Record
+Name: Oleksandr Kostyliev
+Gender: Male
+Blood Type: 0+ve
+Pre-existing Medical Conditions: CSGOAT

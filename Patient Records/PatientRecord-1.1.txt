@@ -1,0 +1,18 @@
+Patient Record
+Name: Peter Shor
+Gender: Male
+Blood Type: 0+ve
+Pre-existing Medical Conditions: Entangled
+Tests Performed: CT-SCAN
+--------------------------------------------------------
+CT-SCAN
+Name: Peter Shor
+Gender: Male
+Results: Unknown if dead or alive
+
+--------------------------------------------------------
+Blood Report
+Name: Peter Shor
+Gender: Male
+Results: Large quantity of entropy in his body
+

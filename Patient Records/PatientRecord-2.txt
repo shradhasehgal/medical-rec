@@ -1,0 +1,13 @@
+Patient Record
+Name: Monkey D. Luffy
+Gender: Male
+Blood Type: 0+ve
+Pre-existing Medical Conditions: Gomu-Gomu
+Tests Performed: CT-SCAN
+--------------------------------------------------------
+CT-SCAN
+Name: Monkey D. Luffy
+Gender: Male
+Results: Abnormal Swelling throughout Body
+
+--------------------------------------------------------
