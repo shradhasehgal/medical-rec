@@ -26,8 +26,6 @@ contract IPFSInbox {
 
     /// @dev Here for testing purposes roles are declared
     constructor() public {
-        roles[0x4c2D220c5c16c1b10531Eaa06955Fc405f083A6C]=1; // doctor
-        roles[0xE6b77C28b0a5A63b73e1a470F36187d74B8Aa0b4]=2; // pat
         roles[0x01F80c59484EBf5f2956Db8ec58E502DbDA9DfF9]=3; // hc prov
     }
 
@@ -59,12 +57,18 @@ contract IPFSInbox {
         if(roles[msg.sender] == 3){
             roles[_address] = 1;
         }
+        else {
+            emit inboxResponse("Insufficient Permissions");
+        }
     }
     /// @dev function that is used by healthcare provider to assign patient role
     /// @param _address is the address of the patient whose role is to be assigned
     function assignPat(address _address) public{
         if(roles[msg.sender] == 3){
             roles[_address] = 2;
+        }
+        else {
+            emit inboxResponse("Insufficient Permissions");
         }
     }
     
