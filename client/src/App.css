@@ -1,3 +1,42 @@
+@import url('https://fonts.googleapis.com/css2?family=Lato:wght@400;900&display=swap');
 .App {
   text-align: center;
 }
+
+.navbar {
+  margin-bottom: 23px;
+}
+
+body{
+  font-family: 'Lato', sans-serif;
+}
+
+h1{
+  font-family: 'Lato', sans-serif;
+  font-weight: bold !important;
+}
+.form-group {
+  width: 500px;
+  max-width: 90%;
+  margin: 0 auto;
+}
+
+.medical {
+  margin-top: 30px;
+}
+
+.form-control {
+  margin-bottom: 15px;
+}
+
+.assign{
+  margin-top: 30px !important;
+}
+
+h5 {
+  margin-top: 10px;
+}
+/* form {
+
+  
+} */
