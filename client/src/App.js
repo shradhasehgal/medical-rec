@@ -21,6 +21,8 @@ class App extends Component {
       receivedIPFS: "",
       receivedText: "",
       patient: "",
+      ShareAddress: "",
+      UpdateAddress: ""
     };
 
     this.handleChangeAddress = this.handleChangeAddress.bind(this);
@@ -29,6 +31,10 @@ class App extends Component {
     this.handleReceiveIPFS = this.handleReceiveIPFS.bind(this);
     this.handleViewRecord = this.handleViewRecord.bind(this);
     this.handleChangePatient = this.handleChangePatient.bind(this);
+    this.handleShareRecord = this.handleShareRecord.bind(this);
+    this.handleChangeShareAddress = this.handleChangeShareAddress.bind(this);
+    this.handleChangeUpdate = this.handleChangeUpdate.bind(this);
+    this.handleUpdateRecord = this.handleUpdateRecord.bind(this);
   }
   
 
@@ -49,7 +55,7 @@ class App extends Component {
         .on('data', result => {
           console.log(result);
           
-          if(result.args[0] != "Insufficient Permissions" &&  result.args[0] != "No record")
+          if(result.args[0] !== "Insufficient Permissions" && result.args[0] !== "No record" && result.args[0] !== "1 sign" && result.args[0] !== "2 sign" && result.args[0] !== "exists")
           {
             axios
             .get("https://gateway.ipfs.io/ipfs/"+result.args[0])
@@ -59,12 +65,18 @@ class App extends Component {
               this.setState({receivedText: res['data']})
             })
           }
-          else if (done!=1){
+          else if (done!==1){
             done = 1;
-            if(result.args[0] == "Insufficient Permissions")
+            if(result.args[0] === "Insufficient Permissions")
               alert("Insufficient Permissions");
-            else
+            else if(result.args[0] === "No record")
               alert("No patient record found");
+            else if(result.args[0] === "1 sign")
+              alert("1 sign completed, 1 sign left");
+            else if(result.args[0] === "2 sign")
+              alert("Both signs completed, record can be updated");
+            else if(result.args[0] === "exists")
+              alert("Record exists, sign update");
           }
           // this.setState({receivedIPFS: result.args[0]})
         });
@@ -95,6 +107,14 @@ class App extends Component {
     this.setState({patient: event.target.value});
   }
 
+  handleChangeShareAddress(event){
+    this.setState({ShareAddress: event.target.value});
+  }
+
+  handleChangeUpdate(event){
+    this.setState({UpdateAddress: event.target.value});
+  }
+
   handleSend(event){
     event.preventDefault();
     const contract = this.state.contract
@@ -122,6 +142,18 @@ class App extends Component {
 
   }
 
+  handleShareRecord(event){
+    event.preventDefault();
+    const contract = this.state.contract
+    const account = this.state.accounts[0]
+
+    document.getElementById('my-notification-form').reset()
+    contract.signRequest(this.state.ShareAddress, {from: account})
+    .then(result => {
+      this.setState({ShareAddress: ""});
+    })
+  }
+
   handleReceiveIPFS(event){
     event.preventDefault();
     const contract = this.state.contract
@@ -129,7 +161,17 @@ class App extends Component {
     contract.checkInbox({from: account})
   }
 
+  handleUpdateRecord(event){
+    event.preventDefault();
+    const contract = this.state.contract
+    const account = this.state.accounts[0]
 
+    document.getElementById('upd-notification-form').reset()
+    contract.canUpdate(this.state.UpdateAddress, {from: account})
+    .then(result => {
+      this.setState({UpdateAddress: ""});
+    })
+  }
 
   convertToBuffer = async(reader) => {
     //file is converted to a buffer for upload to IPFS
@@ -175,7 +217,8 @@ class App extends Component {
     }
     return (
       <div className="App">
-        <h2> 1. Add a file to IPFS here </h2>
+        <h1>Electronic Health Record System</h1>
+        <h2> 1. Add record to IPFS </h2>
           <form id="ipfs-hash-form" className="scep-form" onSubmit={this.onIPFSSubmit}>
             <input 
               type="file"
@@ -208,6 +251,24 @@ class App extends Component {
             <input type="submit" value="Display Record" />
           </form>
           <p>{this.state.receivedText}</p>
+
+          <h2> 4. Share My Record </h2>
+        <form id="my-notification-form" className="scep-form" onSubmit={this.handleShareRecord}>
+            <label>
+              Address:
+              <input type="text" value={this.state.ShareAddress} onChange={this.handleChangeShareAddress} />
+            </label>
+            <input type="submit" value="Share Record" />
+          </form>
+
+          <h2> 5. Allow Record Update </h2>
+        <form id="upd-notification-form" className="scep-form" onSubmit={this.handleUpdateRecord}>
+            <label>
+              Patient Address:
+              <input type="text" value={this.state.UpdateAddress} onChange={this.handleChangeUpdate} />
+            </label>
+            <input type="submit" value="Allow Update" />
+          </form>
       </div>
     );
   }

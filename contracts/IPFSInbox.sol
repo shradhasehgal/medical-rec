@@ -29,29 +29,48 @@ contract IPFSInbox {
 
     }
 
-    function sendIPFS(address _address, string memory _ipfsHash) notFull(ipfsInbox[_address].ipfsHash) public {
-        // if(ipfsInbox[_address].isExists == false)
+    function sendIPFS(address _address, string memory _ipfsHash) public {
+        if(ipfsInbox[_address].isExists == true)
+            emit inboxResponse("exists");
             // emit ipfsSent("Patient record exists already!", _address);
         // require(ipfsInbox[_address].isExists == false);
-        ipfsInbox[_address].ipfsHash = _ipfsHash;
-        ipfsInbox[_address].patAdd = _address;
-        ipfsInbox[_address].docAdd = msg.sender;
-        ipfsInbox[_address].isExists = true;
-        emit ipfsSent(_ipfsHash, _address);
+        else {
+            ipfsInbox[_address].ipfsHash = _ipfsHash;
+            ipfsInbox[_address].patAdd = _address;
+            ipfsInbox[_address].docAdd = msg.sender;
+            ipfsInbox[_address].isExists = true;
+            emit ipfsSent(_ipfsHash, _address);
+        }
+        
     }
 
     function canUpdate(address _address) public{
+        uint8 f = 0;
         if(ipfsInbox[_address].docAdd == msg.sender){
             ipfsInbox[_address].docUpd = true;
+            f += 1;
         }
         if(ipfsInbox[_address].patAdd == msg.sender){
             ipfsInbox[_address].patUpd = true;
+            f += 1;
         }
-        if(ipfsInbox[_address].patUpd == true && ipfsInbox[_address].docUpd == true){
+
+        if(ipfsInbox[_address].isExists == false)
+            emit inboxResponse("No record");
+        else if (f==0)
+            emit inboxResponse("Insufficient Permissions");
+        
+        else if(ipfsInbox[_address].patUpd == true && ipfsInbox[_address].docUpd == true){
             ipfsInbox[_address].patUpd = false;
             ipfsInbox[_address].docUpd = false;
             ipfsInbox[_address].isExists = false;
+            emit inboxResponse("2 sign");
         }
+
+        else if(f==1)
+            emit inboxResponse("1 sign");
+        
+        
     }
     function checkInbox() public{
         string memory ipfs_hash = ipfsInbox[msg.sender].ipfsHash;
@@ -97,7 +116,10 @@ contract IPFSInbox {
         }
     }
     function signRequest(address _shareaddress) public{
-        ipfsInbox[msg.sender].sharedAdd.push(_shareaddress); 
+        if(ipfsInbox[msg.sender].isExists == true)
+            ipfsInbox[msg.sender].sharedAdd.push(_shareaddress); 
+        else
+            emit inboxResponse("No record");
     }
     function getSharedRecord(address _shareaddress) public{
         string memory ipfs_hash = ipfsInbox[_shareaddress].ipfsHash;
