@@ -8,6 +8,7 @@ contract IPFSInbox {
         bool isExists;
         bool patUpd;
         bool docUpd;
+        address[] sharedAdd;
     }
     struct shareRec{
         address shareAdd;
@@ -36,8 +37,8 @@ contract IPFSInbox {
         ipfsInbox[_address].isExists = true;
         emit ipfsSent(_ipfsHash, _address);
     }
-    
-    function canUpdate(address _address){
+
+    function canUpdate(address _address) public{
         if(ipfsInbox[_address].docAdd == msg.sender){
             ipfsInbox[_address].docUpd = true;
         }
@@ -71,23 +72,24 @@ contract IPFSInbox {
             }
         }
     }
-    function requestRecord(address _reqaddress) public{
-        shareInbox[msg.sender].shareAdd = msg.sender;
-        shareInbox[msg.sender].patAdd = _reqaddress;
-    }
     function signRequest(address _shareaddress) public{
-        if(shareInbox[_shareaddress].patAdd == msg.sender){
-            shareInbox[_shareaddress].ipfsHash = ipfsInbox[msg.sender].ipfsHash;
-        }
+        ipfsInbox[msg.sender].sharedAdd.push(_shareaddress); 
     }
-    function getSharedRecord() public{
-        string memory ipfs_hash = shareInbox[msg.sender].ipfsHash;
-        if(bytes(ipfs_hash).length == 0) {
+    function getSharedRecord(address _shareaddress) public{
+        string memory ipfs_hash = ipfsInbox[_shareaddress].ipfsHash;
+        uint8 i = 0;
+        bool hasPerm = false;
+        for(i = 0;i<ipfsInbox[_shareaddress].sharedAdd.length;i++)
+        {
+            if(ipfsInbox[_shareaddress].sharedAdd[i] == msg.sender)
+            {
+                hasPerm = true;
+            }
+        }
+        if(hasPerm == false) {
             emit inboxResponse("Empty Inbox");
         } else {
-            // ipfsInbox[msg.sender] = "";
             emit inboxResponse(ipfs_hash);
         }
-    }
     }
 }
