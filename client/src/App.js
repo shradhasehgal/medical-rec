@@ -20,12 +20,15 @@ class App extends Component {
       formAddress: "",
       receivedIPFS: "",
       receivedText: "",
+      patient: "",
     };
 
     this.handleChangeAddress = this.handleChangeAddress.bind(this);
     this.handleChangeIPFS = this.handleChangeIPFS.bind(this);
     this.handleSend = this.handleSend.bind(this);
     this.handleReceiveIPFS = this.handleReceiveIPFS.bind(this);
+    this.handleViewRecord = this.handleViewRecord.bind(this);
+    this.handleChangePatient = this.handleChangePatient.bind(this);
   }
   
 
@@ -41,10 +44,12 @@ class App extends Component {
       const Contract = truffleContract(IPFSInboxContract);
       Contract.setProvider(web3.currentProvider);
       const instance = await Contract.deployed();
-
+      var done = 0
       instance.inboxResponse()
         .on('data', result => {
-          if(result.args[0] != "Empty Inbox")
+          console.log(result);
+          
+          if(result.args[0] != "Insufficient Permissions" &&  result.args[0] != "No record")
           {
             axios
             .get("https://gateway.ipfs.io/ipfs/"+result.args[0])
@@ -54,7 +59,14 @@ class App extends Component {
               this.setState({receivedText: res['data']})
             })
           }
-          this.setState({receivedIPFS: result.args[0]})
+          else if (done!=1){
+            done = 1;
+            if(result.args[0] == "Insufficient Permissions")
+              alert("Insufficient Permissions");
+            else
+              alert("No patient record found");
+          }
+          // this.setState({receivedIPFS: result.args[0]})
         });
 
       // Set web3, accounts, and contract to the state, and then proceed with an
@@ -79,6 +91,10 @@ class App extends Component {
     this.setState({formIPFS: event.target.value});
   }
 
+  handleChangePatient(event){
+    this.setState({patient: event.target.value});
+  }
+
   handleSend(event){
     event.preventDefault();
     const contract = this.state.contract
@@ -93,12 +109,27 @@ class App extends Component {
       })
   }
 
+  handleViewRecord(event){
+    event.preventDefault();
+    const contract = this.state.contract
+    const account = this.state.accounts[0]
+
+    document.getElementById('pat-notification-form').reset()
+    contract.getRecord(this.state.patient, {from: account})
+    .then(result => {
+      this.setState({patient: ""});
+    })
+
+  }
+
   handleReceiveIPFS(event){
     event.preventDefault();
     const contract = this.state.contract
     const account = this.state.accounts[0]
     contract.checkInbox({from: account})
   }
+
+
 
   convertToBuffer = async(reader) => {
     //file is converted to a buffer for upload to IPFS
@@ -156,7 +187,7 @@ class App extends Component {
             </button>
           </form>
           <p> The IPFS hash is: {this.state.ipfsHash}</p>
-        <h2> 2. Send notifications here </h2>
+        <h2> 2. Upload file here </h2>
           <form id="new-notification-form" className="scep-form" onSubmit={this.handleSend}>
             <label>
               Receiver Address:
@@ -168,9 +199,14 @@ class App extends Component {
             </label>
             <input type="submit" value="Submit" />
           </form>
-        <h2> 3. Receive Notifications </h2>
-          <button onClick={this.handleReceiveIPFS}>Receive IPFS</button>
-          <p>{this.state.receivedIPFS}</p>
+        <h2> 3. View Record </h2>
+        <form id="pat-notification-form" className="scep-form" onSubmit={this.handleViewRecord}>
+            <label>
+              Patient Address:
+              <input type="text" value={this.state.patient} onChange={this.handleChangePatient} />
+            </label>
+            <input type="submit" value="Display Record" />
+          </form>
           <p>{this.state.receivedText}</p>
       </div>
     );

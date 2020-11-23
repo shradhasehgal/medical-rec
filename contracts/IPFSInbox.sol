@@ -30,7 +30,9 @@ contract IPFSInbox {
     }
 
     function sendIPFS(address _address, string memory _ipfsHash) notFull(ipfsInbox[_address].ipfsHash) public {
-        require(ipfsInbox[_address].isExists == false);
+        // if(ipfsInbox[_address].isExists == false)
+            // emit ipfsSent("Patient record exists already!", _address);
+        // require(ipfsInbox[_address].isExists == false);
         ipfsInbox[_address].ipfsHash = _ipfsHash;
         ipfsInbox[_address].patAdd = _address;
         ipfsInbox[_address].docAdd = msg.sender;
@@ -54,20 +56,42 @@ contract IPFSInbox {
     function checkInbox() public{
         string memory ipfs_hash = ipfsInbox[msg.sender].ipfsHash;
         if(bytes(ipfs_hash).length == 0) {
-            emit inboxResponse("Empty Inbox");
+            emit inboxResponse("No record");
         } else {
             // ipfsInbox[msg.sender] = "";
             emit inboxResponse(ipfs_hash);
         }
     }
     function getRecord(address _reqaddress) public{
-        if(ipfsInbox[_reqaddress].docAdd == msg.sender || ipfsInbox[_reqaddress].patAdd == msg.sender){
+        if(ipfsInbox[_reqaddress].isExists == false)
+            emit inboxResponse("No record");
+
+        else if(ipfsInbox[_reqaddress].docAdd == msg.sender || ipfsInbox[_reqaddress].patAdd == msg.sender){
             string memory ipfs_hash = ipfsInbox[_reqaddress].ipfsHash;
             if(bytes(ipfs_hash).length == 0) {
-                emit inboxResponse("Empty Inbox");
+                emit inboxResponse("No record");
             } 
             else {
                 // ipfsInbox[msg.sender] = "";
+                emit inboxResponse(ipfs_hash);
+            }
+        }
+
+        else {
+            string memory ipfs_hash = ipfsInbox[_reqaddress].ipfsHash;
+            uint8 i = 0;
+            bool hasPerm = false;
+
+            for(i = 0;i<ipfsInbox[_reqaddress].sharedAdd.length;i++)
+            {
+                if(ipfsInbox[_reqaddress].sharedAdd[i] == msg.sender)
+                {
+                    hasPerm = true;
+                }
+            }
+            if(hasPerm == false) {
+                emit inboxResponse("Insufficient Permissions");
+            } else {
                 emit inboxResponse(ipfs_hash);
             }
         }
